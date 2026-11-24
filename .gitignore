@@ -3,3 +3,10 @@
 
 # VS Code
 .vscode/
+
+# Python build and cache files
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
