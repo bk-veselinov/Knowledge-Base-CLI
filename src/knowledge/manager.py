@@ -13,6 +13,7 @@ class KnowledgeManager:
         self.repository = repository
 
     def add_item(self, title: str, content: str) -> KnowledgeItem:
+        """Add a new knowledge item."""
         title = self._require_text("Title", title)
         content = self._require_text("Content", content)
 
@@ -22,6 +23,7 @@ class KnowledgeManager:
         return self.repository.add(title, content)
 
     def get_item(self, item_id: int) -> KnowledgeItem | None:
+        """Get a knowledge item by ID."""
         item = self.repository.get(item_id)
 
         if item is None:
@@ -29,10 +31,12 @@ class KnowledgeManager:
         
         return item
 
-    def list_items(self) -> list[KnowledgeItem]:
+    def list_items(self) -> list[KnowledgeItem] | None:
+        """List all knowledge items."""
         return self.repository.list_all()
 
     def delete_item(self, item_id: int) -> KnowledgeItem:
+        """Delete a knowledge item by ID."""
         item = self.repository.get(item_id)
 
         if item is None:
