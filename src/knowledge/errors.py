@@ -2,7 +2,6 @@ class KnowledgeError(Exception):
     """Base class for every error in the knowledge project."""
 
 
-
 class InvalidInputError(KnowledgeError):
     """Invalid input from the user."""
 
