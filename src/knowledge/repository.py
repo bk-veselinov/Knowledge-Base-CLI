@@ -36,16 +36,13 @@ class SqliteRepository:
             row = cursor.fetchone()
             return self._row_to_knowledge_item(row) if row else None
 
-    def list_all(self) -> list[KnowledgeItem] | None:
+    def list_all(self) -> list[KnowledgeItem]:
         """List all knowledge items."""
         with self._get_connection() as conn:
             cursor = conn.execute(
                 "SELECT id, title, content, created_at FROM items ORDER BY id"
             )
             rows = cursor.fetchall()
-
-            if not rows:
-                return None
             
             return [self._row_to_knowledge_item(row) for row in rows]
             
