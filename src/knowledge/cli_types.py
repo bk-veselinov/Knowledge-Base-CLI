@@ -2,10 +2,11 @@ from typing import Annotated
 
 from typer import Argument, Option
 
+DEFAULT_LIMIT = 10
 
 ItemId = Annotated[
     int, 
-    Argument(help="The ID of the item.")
+    Argument(help="The ID of the item.", min=1)
 ]
 
 ItemTitle = Annotated[
@@ -25,5 +26,5 @@ Query = Annotated[
 
 LimitOption = Annotated[
     int,
-    Option("--limit", "-l", help="The maximum number of items to return.", min=1, default=10)
+    Option("--limit", "-l", help="The maximum number of items to return.", min=1)
 ]
