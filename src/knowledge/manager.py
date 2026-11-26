@@ -3,6 +3,7 @@ from knowledge.errors import ItemNotFoundError
 
 from knowledge.models import KnowledgeItem
 from knowledge.repository import SqliteRepository
+from knowledge.improved_search import search_knowledge_items
 
 TITLE_MAX_LENGTH = 250
 
@@ -35,6 +36,12 @@ class KnowledgeManager:
     def list_items(self) -> list[KnowledgeItem]:
         """List all knowledge items."""
         return self.repository.list_all()
+
+    def search_items(self, query: str, limit: int = 10) -> list[KnowledgeItem]:
+        """Search for knowledge items based on a query."""
+        query = self._require_text("Query", query)
+        items = self.repository.list_all()
+        return search_knowledge_items(query, items, limit)
 
     def delete_item(self, item_id: int) -> KnowledgeItem:
         """Delete a knowledge item by ID."""

@@ -64,27 +64,13 @@ def search_items(
 ) -> None:
     """Search for knowledge items."""
 
-    stripped_query = query.strip().casefold()
-    
-    if not stripped_query:
-        raise InvalidInputError("Query cannot be empty.")
-
     manager = _knowledge_manager()
-    items = manager.list_items()
-
-    if not items:
-        console.print("No knowledge items found.")
-        return
-
-    filtered_items = [item for item in items 
-                      if stripped_query in item.title.casefold() 
-                        or stripped_query in item.content.casefold()]
-
+    filtered_items = manager.search_items(query, limit)
     if not filtered_items:
-        console.print(f"No knowledge items found matching the query: '{query}'")
+        console.print(f"No knowledge items found matching '{query}'.")
         return
-
-    table = _create_list_table(filtered_items[:limit])
+    
+    table = _create_list_table(filtered_items)
     console.print(table)
 
 @app.command("list", help="List all knowledge items.")
