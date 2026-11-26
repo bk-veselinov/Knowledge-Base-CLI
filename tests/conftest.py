@@ -1,6 +1,8 @@
 from pathlib import Path
+from unittest.mock import MagicMock
 
 import pytest
+from pytest_mock import MockerFixture
 
 from knowledge.repository import SqliteRepository
 from knowledge.manager import KnowledgeManager
@@ -19,3 +21,10 @@ def repo(db_path: Path) -> SqliteRepository:
 @pytest.fixture
 def manager(repo: SqliteRepository) -> KnowledgeManager:
     return KnowledgeManager(repo)
+
+
+@pytest.fixture
+def mock_manager(mocker: MockerFixture) -> MagicMock:
+    mock = mocker.create_autospec(KnowledgeManager, instance=True)
+    mocker.patch("knowledge.cli._knowledge_manager", return_value=mock)
+    return mock
