@@ -27,6 +27,7 @@ class SqliteRepository:
         self._initialize_database()
 
     def get(self, item_id: int) -> KnowledgeItem | None:
+        """Get a knowledge item by ID."""
         with self._get_connection() as conn:
             cursor = conn.execute(
                 "SELECT id, title, content, created_at FROM items WHERE id = ?",
@@ -36,14 +37,17 @@ class SqliteRepository:
             return self._row_to_knowledge_item(row) if row else None
 
     def list_all(self) -> list[KnowledgeItem]:
+        """List all knowledge items."""
         with self._get_connection() as conn:
             cursor = conn.execute(
                 "SELECT id, title, content, created_at FROM items ORDER BY id"
             )
             rows = cursor.fetchall()
+            
             return [self._row_to_knowledge_item(row) for row in rows]
             
     def add(self, title: str, content: str) -> KnowledgeItem:
+        """Add a new knowledge item."""
         created_at = datetime.now(UTC)
         with self._get_connection() as conn:
             cursor = conn.execute(
@@ -54,6 +58,7 @@ class SqliteRepository:
             return KnowledgeItem(item_id, title, content, created_at)
 
     def delete(self, item_id: int) -> bool:
+        """Delete a knowledge item by ID."""
         with self._get_connection() as conn:
             cursor = conn.execute("DELETE FROM items WHERE id = ?", (item_id,))
             return cursor.rowcount > 0
