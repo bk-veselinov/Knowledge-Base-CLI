@@ -10,3 +10,10 @@ class KnowledgeItem:
     title: str
     content: str
     created_at: datetime
+
+@dataclass(frozen=True)
+class ScoredKnowledgeItem:
+    """A knowledge item with a search score."""
+
+    knowledge_item: KnowledgeItem
+    score: float

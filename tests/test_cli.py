@@ -6,7 +6,7 @@ from typer.testing import CliRunner
 
 from knowledge.cli import app
 from knowledge.errors import InvalidInputError, ItemNotFoundError
-from knowledge.models import KnowledgeItem
+from knowledge.models import KnowledgeItem, ScoredKnowledgeItem
 
 
 runner = CliRunner()
@@ -42,7 +42,7 @@ def test_show_with_valid_id(mock_manager: MagicMock) -> None:
 
     assert result.exit_code == 0
     assert "Title: Title" in result.output
-    assert "Content: Content" in result.output
+    assert "Content:\nContent" in result.output
     mock_manager.get_item.assert_called_once_with(1)
 
 
@@ -85,51 +85,48 @@ def test_list_with_limit(mock_manager: MagicMock) -> None:
     assert "Item 3" not in result.output
 
 
-def test_search_matches_title_and_content_case_insensitive(mock_manager: MagicMock) -> None:
-    mock_manager.list_items.return_value = [
-        make_item(1, "Python", "Content1"),
-        make_item(2, "Title1", "Content PYTHON"),
-        make_item(3, "Title2", "Content2"),
+def test_search_prints_results_with_scores(mock_manager: MagicMock) -> None:
+    mock_manager.search_items.return_value = [
+        ScoredKnowledgeItem(make_item(1, "Async in Python"), 6.70),
+        ScoredKnowledgeItem(make_item(2, "Notes"), 0.69),
     ]
 
-    result = runner.invoke(app, ["search", "python"])
+    result = runner.invoke(app, ["search", "python async"])
 
     assert result.exit_code == 0
-    assert "Python" in result.output
-    assert "Title1" in result.output
-    assert "Title2" not in result.output
+    assert "Async in Python" in result.output
+    assert "Notes" in result.output
+    assert "6.70" in result.output
+    assert "0.69" in result.output
+    assert result.output.index("Async in Python") < result.output.index("Notes")
+    mock_manager.search_items.assert_called_once_with("python async", 10)
 
 
-def test_search_matches_cyrilic_title_and_content(mock_manager: MagicMock) -> None:
-    mock_manager.list_items.return_value = [
-        make_item(1, "Питон", "Content1"),
-        make_item(2, "Title1", "Content ПИТОН"),
-        make_item(3, "Title2", "Content2"),
-    ]
+def test_search_prints_cyrillic_titles(mock_manager: MagicMock) -> None:
+    mock_manager.search_items.return_value = [ScoredKnowledgeItem(make_item(1, "Питон"), 3.5)]
 
     result = runner.invoke(app, ["search", "питон"])
 
     assert result.exit_code == 0
     assert "Питон" in result.output
-    assert "Title1" in result.output
-    assert "Title2" not in result.output
 
 
 def test_search_no_match(mock_manager: MagicMock) -> None:
-    mock_manager.list_items.return_value = [make_item()]
+    mock_manager.search_items.return_value = []
 
     result = runner.invoke(app, ["search", "NonexistentQuery"])
 
     assert result.exit_code == 0
-    assert "No knowledge items found matching the query: 'NonexistentQuery'" in result.output
+    assert "No knowledge items found matching 'NonexistentQuery'." in result.output
 
 
 def test_search_with_empty_query(mock_manager: MagicMock) -> None:
+    mock_manager.search_items.side_effect = InvalidInputError("Query cannot be empty.")
+
     result = runner.invoke(app, ["search", " "])
 
     assert result.exit_code == 2
     assert "Query cannot be empty." in result.output
-    mock_manager.list_items.assert_not_called()
 
 
 def test_delete_prints_deleted_item(mock_manager: MagicMock) -> None:

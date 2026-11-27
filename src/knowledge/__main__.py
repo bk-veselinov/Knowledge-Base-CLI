@@ -1,5 +1,3 @@
-
-
 from knowledge.cli import main
 
 

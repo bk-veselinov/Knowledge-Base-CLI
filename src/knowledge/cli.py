@@ -1,3 +1,4 @@
+from dotenv import load_dotenv
 import typer
 
 from rich.console import Console
@@ -53,7 +54,7 @@ def get_item(
     """Get a knowledge item by ID."""
     manager = _knowledge_manager()
     item = manager.get_item(item_id)
-    console.print(f"Title: {item.title}\nCreated at: {item.created_at.strftime('%Y-%m-%d %H:%M:%S')}\n\nContent: {item.content}")
+    console.print(f"Title: {item.title}\nCreated at: {item.created_at.strftime('%Y-%m-%d %H:%M:%S')}\n\nContent:\n{item.content}")
 
 
 @app.command("search", help="Search for knowledge items.")
@@ -64,27 +65,16 @@ def search_items(
 ) -> None:
     """Search for knowledge items."""
 
-    stripped_query = query.strip().casefold()
-    
-    if not stripped_query:
-        raise InvalidInputError("Query cannot be empty.")
-
     manager = _knowledge_manager()
-    items = manager.list_items()
-
-    if not items:
-        console.print("No knowledge items found.")
-        return
-
-    filtered_items = [item for item in items 
-                      if stripped_query in item.title.casefold() 
-                        or stripped_query in item.content.casefold()]
-
+    filtered_items = manager.search_items(query, limit)
     if not filtered_items:
-        console.print(f"No knowledge items found matching the query: '{query}'")
+        console.print(f"No knowledge items found matching '{query}'.")
         return
-
-    table = _create_list_table(filtered_items[:limit])
+    
+    table = _create_list_table([item.knowledge_item for item in filtered_items])
+    table.add_column("Score", justify="right")
+    table.columns[-1]._cells.extend([f"{item.score:.2f}" for item in filtered_items])
+        
     console.print(table)
 
 @app.command("list", help="List all knowledge items.")
@@ -115,6 +105,7 @@ def delete_item(
 
 def main() -> None:
     """Entry point for the CLI."""
+    load_dotenv()
     app()
 
 def _knowledge_manager() -> KnowledgeManager:
@@ -129,7 +120,7 @@ def _create_list_table(knowledge_items: list[KnowledgeItem]) -> Table:
     table.add_column("Created at", justify="right")
 
     for item in knowledge_items:
-        table.add_row(str(item.id), item.title, str(item.created_at))
+        table.add_row(str(item.id), item.title, str(item.created_at.strftime('%Y-%m-%d %H:%M:%S')))
 
     return table
 
