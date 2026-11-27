@@ -17,41 +17,38 @@ def _tokenize(text: str) -> list[str]:
     return [term for term in re.findall(r'\w+', text.casefold())
                 if term not in EXCLUDED_TERMS]
 
-def _to_scored_knowledge_items(score: float, knowledge_items: KnowledgeItem) -> ScoredKnowledgeItem:
+def _to_scored_knowledge_items(score: float, knowledge_item: KnowledgeItem) -> ScoredKnowledgeItem:
     """Create a ScoredKnowledgeItem from a KnowledgeItem and its score."""
-    return ScoredKnowledgeItem(knowledge_item=knowledge_items, score=score)
+    return ScoredKnowledgeItem(knowledge_item=knowledge_item, score=score)
 
-def _frequency_count(terms: list[str]) -> dict[str, int]:
-    """Count the frequency of each term in the list."""
-    freq_count = {}
-    for term in terms:
-        if term in freq_count:
-            freq_count[term] += 1
-        else:
-            freq_count[term] = 1
-    return freq_count
+def _term_match_count(term: str, tokens: list[str]) -> int:
+    """Count the number of times a term appears in a list of tokens."""
+    return len([token for token in tokens if token.startswith(term)])
 
 def _score_knowledge_item(query_terms: list[str], knowledge_item: KnowledgeItem) -> float:
     """Score knowledge items based on their relevance to the query."""
     title_terms = _tokenize(knowledge_item.title.strip())
     content_terms = _tokenize(knowledge_item.content.strip())
-    content_freq = _frequency_count(content_terms)
 
     score = 0.0
     query_terms_matched = 0
-    for term in query_terms:
+    for term in set(query_terms):
         score_increase = 0
-        if term in title_terms:
+        if _term_match_count(term, title_terms) > 0:
             score_increase += TITLE_WEIGHT
 
-        score_increase += CONTENT_WEIGHT * math.log(1 + content_freq.get(term, 0))
+        content_hits = _term_match_count(term, content_terms)
+        score_increase += CONTENT_WEIGHT * math.log(1 + content_hits)
         score += score_increase
         if score_increase > 0:
             query_terms_matched += 1
 
-    score *= (query_terms_matched / len(query_terms)) ** 2
+    score *= (query_terms_matched / len(set(query_terms))) ** 2
 
     if len(set(query_terms)) == 1:
+        return score
+
+    if query_terms_matched < len(set(query_terms)):
         return score
     
     clean_query = " ".join(query_terms)

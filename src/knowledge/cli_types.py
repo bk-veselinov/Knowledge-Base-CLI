@@ -6,7 +6,7 @@ DEFAULT_LIMIT = 10
 
 ItemId = Annotated[
     int, 
-    Argument(help="The ID of the item.", min=1)
+    Argument(help="The ID of the item.", min=1,  max=2**63 - 1)
 ]
 
 ItemTitle = Annotated[
