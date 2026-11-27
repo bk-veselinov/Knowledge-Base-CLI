@@ -65,3 +65,24 @@ def test_list_items_returns_all_items(manager: KnowledgeManager) -> None:
     assert len(items) == 2
     assert items[0] == item1
     assert items[1] == item2
+
+def test_search_items(manager: KnowledgeManager) -> None:
+    python_item = manager.add_item("Python basics", "Variables and loops")
+    manager.add_item("Cooking", "Pasta recipe")
+
+    results = manager.search_items("python")
+
+    assert [result.knowledge_item for result in results] == [python_item]
+
+@pytest.mark.parametrize("query", ["", "   "])
+def test_search_items_empty_query(manager: KnowledgeManager, query: str) -> None:
+    with pytest.raises(InvalidInputError, match="Query cannot be empty."):
+        manager.search_items(query)
+
+def test_search_items_respects_limit(manager: KnowledgeManager) -> None:
+    for i in range(3):
+        manager.add_item(f"Python {i}", "Content")
+
+    results = manager.search_items("python", limit=2)
+
+    assert len(results) == 2
