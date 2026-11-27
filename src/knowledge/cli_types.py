@@ -4,27 +4,16 @@ from typer import Argument, Option
 
 DEFAULT_LIMIT = 10
 
-ItemId = Annotated[
-    int, 
-    Argument(help="The ID of the item.", min=1,  max=2**63 - 1)
-]
+ItemId = Annotated[int, Argument(help="The ID of the item.", min=1, max=2**63 - 1)]
 
-ItemTitle = Annotated[
-    str,
-    Argument(help="The title of the item.")
-]
+ItemTitle = Annotated[str, Argument(help="The title of the item.")]
 
-ItemContent = Annotated[
-    str,
-    Argument(help="The content of the item.")
-]
+ItemContent = Annotated[str, Argument(help="The content of the item.")]
 
 Query = Annotated[
-    str,
-    Argument(help="A query string to search for in the knowledge items.")
+    str, Argument(help="A query string to search for in the knowledge items.")
 ]
 
 LimitOption = Annotated[
-    int,
-    Option("--limit", "-l", help="The maximum number of items to return.", min=1)
+    int, Option("--limit", "-l", help="The maximum number of items to return.", min=1)
 ]

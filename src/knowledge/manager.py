@@ -5,6 +5,7 @@ from knowledge.repository import SqliteRepository
 
 TITLE_MAX_LENGTH = 250
 
+
 class KnowledgeManager:
     """Manages the knowledge base."""
 
@@ -17,8 +18,10 @@ class KnowledgeManager:
         content = self._require_text("Content", content)
 
         if len(title) > TITLE_MAX_LENGTH:
-            raise InvalidInputError(f"Title cannot exceed {TITLE_MAX_LENGTH} characters.")
-        
+            raise InvalidInputError(
+                f"Title cannot exceed {TITLE_MAX_LENGTH} characters."
+            )
+
         return self.repository.add(title, content)
 
     def get_item(self, item_id: int) -> KnowledgeItem:
@@ -28,7 +31,7 @@ class KnowledgeManager:
 
         if item is None:
             raise ItemNotFoundError(item_id)
-        
+
         return item
 
     def list_items(self) -> list[KnowledgeItem]:
@@ -48,7 +51,7 @@ class KnowledgeManager:
 
         if item is None:
             raise ItemNotFoundError(item_id)
-        
+
         self.repository.delete(item_id)
         return item
 
@@ -58,12 +61,12 @@ class KnowledgeManager:
 
         if not value:
             raise InvalidInputError(f"{field_name} cannot be empty.")
-        
+
         return value
 
     @staticmethod
     def _require_valid_id(item_id: int) -> int:
         if item_id <= 0:
             raise InvalidInputError("Item ID must be a positive integer.")
-        
+
         return item_id

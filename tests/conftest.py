@@ -17,6 +17,7 @@ def db_path(tmp_path: Path) -> Path:
 def repo(db_path: Path) -> SqliteRepository:
     return SqliteRepository(db_path)
 
+
 @pytest.fixture
 def manager(repo: SqliteRepository) -> KnowledgeManager:
     return KnowledgeManager(repo)

@@ -10,9 +10,13 @@ from knowledge.models import KnowledgeItem, ScoredKnowledgeItem
 
 runner = CliRunner()
 
-def make_item(item_id: int = 1, title: str = "Title", content: str = "Content") -> KnowledgeItem:
-    return KnowledgeItem(item_id, title, content, datetime(2026, 11, 26, 20, 0, tzinfo=UTC))
 
+def make_item(
+    item_id: int = 1, title: str = "Title", content: str = "Content"
+) -> KnowledgeItem:
+    return KnowledgeItem(
+        item_id, title, content, datetime(2026, 11, 26, 20, 0, tzinfo=UTC)
+    )
 
 
 def test_add_valid_input(mock_manager: MagicMock) -> None:
@@ -45,7 +49,6 @@ def test_show_with_valid_id(mock_manager: MagicMock) -> None:
     mock_manager.get_item.assert_called_once_with(1)
 
 
-
 def test_show_with_nonexistent_id(mock_manager: MagicMock) -> None:
     mock_manager.get_item.side_effect = ItemNotFoundError(76)
 
@@ -72,9 +75,10 @@ def test_list_empty(mock_manager: MagicMock) -> None:
     assert "No knowledge items found." in result.output
 
 
-
 def test_list_with_limit(mock_manager: MagicMock) -> None:
-    mock_manager.list_items.return_value = [make_item(i, f"Item {i}") for i in range(1, 4)]
+    mock_manager.list_items.return_value = [
+        make_item(i, f"Item {i}") for i in range(1, 4)
+    ]
 
     result = runner.invoke(app, ["list", "--limit", "2"])
 
@@ -102,7 +106,9 @@ def test_search_prints_results_with_scores(mock_manager: MagicMock) -> None:
 
 
 def test_search_prints_cyrillic_titles(mock_manager: MagicMock) -> None:
-    mock_manager.search_items.return_value = [ScoredKnowledgeItem(make_item(1, "Питон"), 3.5)]
+    mock_manager.search_items.return_value = [
+        ScoredKnowledgeItem(make_item(1, "Питон"), 3.5)
+    ]
 
     result = runner.invoke(app, ["search", "питон"])
 

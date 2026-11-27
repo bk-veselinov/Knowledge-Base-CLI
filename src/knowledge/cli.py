@@ -29,45 +29,41 @@ def _handle_knowledge_error(func):
     def wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
-        
+
         except InvalidInputError as e:
             error_console.print(f"Error: {e}", style="red")
             raise typer.Exit(code=2)
-        
+
         except KnowledgeError as e:
             error_console.print(f"Error: {e}", style="red")
             raise typer.Exit(code=1)
-        
+
     return wrapper
+
 
 @app.command("add", help="Add a new knowledge item.")
 @_handle_knowledge_error
-def add_item(
-    title: ItemTitle,
-    content: ItemContent
-) -> None:
+def add_item(title: ItemTitle, content: ItemContent) -> None:
     """Add a new knowledge item."""
     manager = _knowledge_manager()
     item = manager.add_item(title, content)
     console.print(f"Added item: {item.title} (ID: {item.id})")
 
+
 @app.command("show", help="Get a knowledge item by ID.")
 @_handle_knowledge_error
-def get_item(
-    item_id: ItemId
-) -> None:
+def get_item(item_id: ItemId) -> None:
     """Get a knowledge item by ID."""
     manager = _knowledge_manager()
     item = manager.get_item(item_id)
-    console.print(f"Title: {item.title}\nCreated at: {item.created_at.strftime('%Y-%m-%d %H:%M:%S')}\n\nContent:\n{item.content}")
+    console.print(
+        f"Title: {item.title}\nCreated at: {item.created_at.strftime('%Y-%m-%d %H:%M:%S')}\n\nContent:\n{item.content}"
+    )
 
 
 @app.command("search", help="Search for knowledge items.")
 @_handle_knowledge_error
-def search_items(
-    query: Query,
-    limit: LimitOption = DEFAULT_LIMIT
-) -> None:
+def search_items(query: Query, limit: LimitOption = DEFAULT_LIMIT) -> None:
     """Search for knowledge items."""
 
     manager = _knowledge_manager()
@@ -75,18 +71,17 @@ def search_items(
     if not filtered_items:
         console.print(f"No knowledge items found matching '{query}'.")
         return
-    
+
     table = _create_list_table(
         [item.knowledge_item for item in filtered_items],
         scores=[item.score for item in filtered_items],
     )
     console.print(table)
 
+
 @app.command("list", help="List all knowledge items.")
 @_handle_knowledge_error
-def list_items(
-    limit: LimitOption = None
-) -> None:
+def list_items(limit: LimitOption = None) -> None:
     """List all knowledge items."""
     manager = _knowledge_manager()
     items = manager.list_items()
@@ -101,26 +96,30 @@ def list_items(
     table = _create_list_table(items[:limit])
     console.print(table)
 
+
 @app.command("delete", help="Delete a knowledge item by ID.")
 @_handle_knowledge_error
-def delete_item(
-    item_id: ItemId
-) -> None:
+def delete_item(item_id: ItemId) -> None:
     """Delete a knowledge item by ID."""
     manager = _knowledge_manager()
     deleted_item = manager.delete_item(item_id)
     console.print(f"Deleted item: {deleted_item.title} (ID: {deleted_item.id})")
+
 
 def main() -> None:
     """Entry point for the CLI."""
     load_dotenv()
     app()
 
+
 def _knowledge_manager() -> KnowledgeManager:
     """Create and return a KnowledgeManager instance."""
     return KnowledgeManager(SqliteRepository(get_database_path()))
 
-def _create_list_table(knowledge_items: list[KnowledgeItem], scores: list[float] | None = None) -> Table:
+
+def _create_list_table(
+    knowledge_items: list[KnowledgeItem], scores: list[float] | None = None
+) -> Table:
     """Create the knowledge items table, with a Score column when scores are given."""
     table = Table(title="Knowledge Items")
     table.add_column("ID", justify="right", no_wrap=True)
@@ -130,10 +129,9 @@ def _create_list_table(knowledge_items: list[KnowledgeItem], scores: list[float]
         table.add_column("Score", justify="right")
 
     for index, item in enumerate(knowledge_items):
-        row = [str(item.id), item.title, item.created_at.strftime('%Y-%m-%d %H:%M:%S')]
+        row = [str(item.id), item.title, item.created_at.strftime("%Y-%m-%d %H:%M:%S")]
         if scores is not None:
             row.append(f"{scores[index]:.2f}")
         table.add_row(*row)
 
     return table
-

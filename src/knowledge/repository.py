@@ -43,9 +43,9 @@ class SqliteRepository:
                 "SELECT id, title, content, created_at FROM items ORDER BY id"
             )
             rows = cursor.fetchall()
-            
+
             return [self._row_to_knowledge_item(row) for row in rows]
-            
+
     def add(self, title: str, content: str) -> KnowledgeItem:
         """Add a new knowledge item."""
         created_at = datetime.now(UTC)
@@ -69,7 +69,7 @@ class SqliteRepository:
             self.db_path.parent.mkdir(parents=True, exist_ok=True)
             conn = sqlite3.connect(self.db_path)
             conn.row_factory = sqlite3.Row
-            
+
         except (OSError, sqlite3.Error) as e:
             raise StorageError(f"The file {self.db_path} could not be opened: {e}")
 
@@ -79,10 +79,12 @@ class SqliteRepository:
 
         except sqlite3.OperationalError as e:
             raise StorageError(f"Cannot access {self.db_path} file: {e}")
-        
+
         except sqlite3.DatabaseError as e:
-            raise StorageError(f"The file {self.db_path} is corrupted or is not a valid database: {e}")
-        
+            raise StorageError(
+                f"The file {self.db_path} is corrupted or is not a valid database: {e}"
+            )
+
         finally:
             conn.close()
 
@@ -98,7 +100,3 @@ class SqliteRepository:
             content=row["content"],
             created_at=datetime.fromisoformat(row["created_at"]).replace(tzinfo=UTC),
         )
-
-    
-
-    

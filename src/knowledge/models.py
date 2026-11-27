@@ -11,6 +11,7 @@ class KnowledgeItem:
     content: str
     created_at: datetime
 
+
 @dataclass(frozen=True)
 class ScoredKnowledgeItem:
     """A knowledge item with a search score."""

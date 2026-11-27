@@ -9,23 +9,60 @@ CONTENT_WEIGHT = 1.0
 PHRASE_TITLE_BONUS = 4
 PHRASE_CONTENT_BONUS = 2
 
-EXCLUDED_TERMS = {"the", "is", "at", "which", "on", "and", "a", "an", "in", "to", "of", "for", "with", "by", "from",
-                   "и", "в", "на", "но", "с", "по", "за", "из", "от", "до", "при"}
+EXCLUDED_TERMS = {
+    "the",
+    "is",
+    "at",
+    "which",
+    "on",
+    "and",
+    "a",
+    "an",
+    "in",
+    "to",
+    "of",
+    "for",
+    "with",
+    "by",
+    "from",
+    "и",
+    "в",
+    "на",
+    "но",
+    "с",
+    "по",
+    "за",
+    "из",
+    "от",
+    "до",
+    "при",
+}
+
 
 def _tokenize(text: str) -> list[str]:
     """Tokenize the input text into a list of terms."""
-    return [term for term in re.findall(r'\w+', text.casefold())
-                if term not in EXCLUDED_TERMS]
+    return [
+        term
+        for term in re.findall(r"\w+", text.casefold())
+        if term not in EXCLUDED_TERMS
+    ]
 
-def _to_scored_knowledge_items(score: float, knowledge_item: KnowledgeItem) -> ScoredKnowledgeItem:
+
+def _to_scored_knowledge_items(
+    score: float, knowledge_item: KnowledgeItem
+) -> ScoredKnowledgeItem:
     """Create a ScoredKnowledgeItem from a KnowledgeItem and its score."""
     return ScoredKnowledgeItem(knowledge_item=knowledge_item, score=score)
+
 
 def _term_match_count(term: str, tokens: list[str]) -> int:
     """Count the number of times a term appears in a list of tokens."""
     return len([token for token in tokens if token.startswith(term)])
 
-def _score_knowledge_item(query_terms: list[str], knowledge_item: KnowledgeItem) -> float:
+
+def _score_knowledge_item(
+    query_terms: list[str], knowledge_item: KnowledgeItem
+) -> float:
     """Score knowledge items based on their relevance to the query."""
     title_terms = _tokenize(knowledge_item.title.strip())
     content_terms = _tokenize(knowledge_item.content.strip())
@@ -50,7 +87,7 @@ def _score_knowledge_item(query_terms: list[str], knowledge_item: KnowledgeItem)
 
     if query_terms_matched < len(set(query_terms)):
         return score
-    
+
     clean_query = " ".join(query_terms)
     if clean_query in " ".join(title_terms):
         score += PHRASE_TITLE_BONUS
@@ -59,11 +96,14 @@ def _score_knowledge_item(query_terms: list[str], knowledge_item: KnowledgeItem)
 
     return score
 
-def search_knowledge_items(query: str, knowledge_items: list[KnowledgeItem], limit: int = 10) -> list[ScoredKnowledgeItem]:
+
+def search_knowledge_items(
+    query: str, knowledge_items: list[KnowledgeItem], limit: int = 10
+) -> list[ScoredKnowledgeItem]:
     """Search for knowledge items based on a query."""
     if limit <= 0:
         raise InvalidInputError("Limit must be a positive integer.")
-    
+
     clean_query = query.strip().casefold()
     if not clean_query:
         raise InvalidInputError("Query cannot be empty.")
@@ -78,6 +118,8 @@ def search_knowledge_items(query: str, knowledge_items: list[KnowledgeItem], lim
 
         if score > 0:
             scored_items.append((score, item))
-    
+
     sorted_items = sorted(scored_items, key=lambda x: x[0], reverse=True)
-    return [_to_scored_knowledge_items(score, item) for score, item in sorted_items[:limit]]
+    return [
+        _to_scored_knowledge_items(score, item) for score, item in sorted_items[:limit]
+    ]
