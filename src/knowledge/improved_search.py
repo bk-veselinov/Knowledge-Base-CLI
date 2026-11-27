@@ -1,7 +1,7 @@
 import math
 import re
 
-from knowledge.models import KnowledgeItem
+from knowledge.models import KnowledgeItem, ScoredKnowledgeItem
 from knowledge.errors import InvalidInputError
 
 
@@ -17,6 +17,10 @@ def _tokenize(text: str) -> list[str]:
     """Tokenize the input text into a list of terms."""
     return list(term for term in re.findall(r'\w+', text.casefold())
                 if term not in EXCLUDED_TERMS)
+
+def _to_scored_knowledge_items(score: float, knowledge_items: KnowledgeItem) -> ScoredKnowledgeItem:
+    """Create a ScoredKnowledgeItem from a KnowledgeItem and its score."""
+    return ScoredKnowledgeItem(knowledge_item=knowledge_items, score=score)
 
 def _frequency_count(terms: list[str]) -> dict[str, int]:
     """Count the frequency of each term in the list."""
@@ -59,7 +63,7 @@ def _score_knowledge_item(query_terms: list[str], knowledge_item: KnowledgeItem)
 
     return score
 
-def search_knowledge_items(query: str, knowledge_items: list[KnowledgeItem], limit: int = 10) -> list[KnowledgeItem]:
+def search_knowledge_items(query: str, knowledge_items: list[KnowledgeItem], limit: int = 10) -> list[ScoredKnowledgeItem]:
     """Search for knowledge items based on a query."""
     if limit <= 0:
         raise InvalidInputError("Limit must be a positive integer.")
@@ -80,4 +84,4 @@ def search_knowledge_items(query: str, knowledge_items: list[KnowledgeItem], lim
             scored_items.append((score, item))
     
     sorted_items = sorted(scored_items, key=lambda x: x[0], reverse=True)
-    return [item for _, item in sorted_items[:limit]]
+    return [_to_scored_knowledge_items(score, item) for score, item in sorted_items[:limit]]
