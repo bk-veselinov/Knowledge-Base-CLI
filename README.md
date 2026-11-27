@@ -8,7 +8,7 @@ Requires Python 3.11+.
 
 ```bash
 git clone https://github.com/bk-veselinov/Knowledge-Base-CLI
-
+cd Knowledge-Base-CLI
 python -m venv .venv
 .venv\Scripts\Activate.ps1        # Windows
 source .venv/bin/activate         # macOS / Linux
@@ -49,4 +49,4 @@ pytest
 
 **Assumptions.** Single local user. Small collections. Timestamps are stored in UTC. A query of only stopwords is rejected.
 
-**Use of AI tools.** I used Claude Code to review the search logic and weights and to validate some design decesions. It found bugs such as content frequency always being 1 and a division by zero on stopword-only queries. I decided which suggestions to apply, and checked every change with the test suite and by running the CLI. The `README.md` file was written by AI and then edited by me.
+**Use of AI tools.** I used Claude Code to review the search logic and weights and to validate some design decisions. It found bugs such as content frequency always being 1 and a division by zero on stopword-only queries. I decided which suggestions to apply, and checked every change with the test suite and by running the CLI. The `README.md` file was written by AI and then edited by me.
