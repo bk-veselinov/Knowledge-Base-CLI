@@ -1,9 +1,8 @@
 import math
 import re
 
-from knowledge.models import KnowledgeItem, ScoredKnowledgeItem
 from knowledge.errors import InvalidInputError
-
+from knowledge.models import KnowledgeItem, ScoredKnowledgeItem
 
 TITLE_WEIGHT = 3.5
 CONTENT_WEIGHT = 1.0
@@ -15,8 +14,8 @@ EXCLUDED_TERMS = {"the", "is", "at", "which", "on", "and", "a", "an", "in", "to"
 
 def _tokenize(text: str) -> list[str]:
     """Tokenize the input text into a list of terms."""
-    return list(term for term in re.findall(r'\w+', text.casefold())
-                if term not in EXCLUDED_TERMS)
+    return [term for term in re.findall(r'\w+', text.casefold())
+                if term not in EXCLUDED_TERMS]
 
 def _to_scored_knowledge_items(score: float, knowledge_items: KnowledgeItem) -> ScoredKnowledgeItem:
     """Create a ScoredKnowledgeItem from a KnowledgeItem and its score."""

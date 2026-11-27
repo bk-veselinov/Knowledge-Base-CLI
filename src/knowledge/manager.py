@@ -1,9 +1,7 @@
-from knowledge.errors import InvalidInputError
-from knowledge.errors import ItemNotFoundError
-
+from knowledge.errors import InvalidInputError, ItemNotFoundError
+from knowledge.improved_search import search_knowledge_items
 from knowledge.models import KnowledgeItem
 from knowledge.repository import SqliteRepository
-from knowledge.improved_search import search_knowledge_items
 
 TITLE_MAX_LENGTH = 250
 

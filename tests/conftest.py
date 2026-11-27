@@ -4,9 +4,8 @@ from unittest.mock import MagicMock
 import pytest
 from pytest_mock import MockerFixture
 
-from knowledge.repository import SqliteRepository
 from knowledge.manager import KnowledgeManager
-
+from knowledge.repository import SqliteRepository
 
 
 @pytest.fixture

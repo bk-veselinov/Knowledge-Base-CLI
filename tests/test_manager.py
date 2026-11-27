@@ -1,6 +1,6 @@
 import pytest
 
-from knowledge.errors import ItemNotFoundError, InvalidInputError
+from knowledge.errors import InvalidInputError, ItemNotFoundError
 from knowledge.manager import TITLE_MAX_LENGTH, KnowledgeManager
 
 

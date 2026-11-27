@@ -1,7 +1,7 @@
 """SQLite storage"""
 
 import sqlite3
-from collections.abc import Generator, Iterator
+from collections.abc import Generator
 from contextlib import contextmanager
 from datetime import UTC, datetime
 from pathlib import Path

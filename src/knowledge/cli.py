@@ -1,18 +1,23 @@
-from dotenv import load_dotenv
-import typer
+from functools import wraps
 
+import typer
+from dotenv import load_dotenv
 from rich.console import Console
 from rich.table import Table
 
-from functools import wraps
-
+from knowledge.cli_types import (
+    DEFAULT_LIMIT,
+    ItemContent,
+    ItemId,
+    ItemTitle,
+    LimitOption,
+    Query,
+)
 from knowledge.config import get_database_path
 from knowledge.errors import InvalidInputError, KnowledgeError
 from knowledge.manager import KnowledgeManager
 from knowledge.models import KnowledgeItem
 from knowledge.repository import SqliteRepository
-from knowledge.cli_types import ItemId, ItemTitle, ItemContent, Query, LimitOption, DEFAULT_LIMIT
-
 
 app = typer.Typer(help="A CLI for managing knowledge items.")
 console = Console()
@@ -80,7 +85,7 @@ def search_items(
 @app.command("list", help="List all knowledge items.")
 @_handle_knowledge_error
 def list_items(
-    limit: LimitOption = DEFAULT_LIMIT
+    limit: LimitOption = None
 ) -> None:
     """List all knowledge items."""
     manager = _knowledge_manager()
@@ -89,6 +94,9 @@ def list_items(
     if not items:
         typer.echo("No knowledge items found.")
         return
+
+    if limit is None:
+        limit = len(items)
 
     table = _create_list_table(items[:limit])
     console.print(table)

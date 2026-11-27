@@ -8,7 +8,6 @@ from knowledge.cli import app
 from knowledge.errors import InvalidInputError, ItemNotFoundError
 from knowledge.models import KnowledgeItem, ScoredKnowledgeItem
 
-
 runner = CliRunner()
 
 def make_item(item_id: int = 1, title: str = "Title", content: str = "Content") -> KnowledgeItem:
