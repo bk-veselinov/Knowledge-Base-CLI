@@ -1,3 +1,4 @@
+from dotenv import load_dotenv
 import typer
 
 from rich.console import Console
@@ -104,6 +105,7 @@ def delete_item(
 
 def main() -> None:
     """Entry point for the CLI."""
+    load_dotenv()
     app()
 
 def _knowledge_manager() -> KnowledgeManager:
