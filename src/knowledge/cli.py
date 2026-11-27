@@ -20,7 +20,7 @@ from knowledge.models import KnowledgeItem
 from knowledge.repository import SqliteRepository
 
 app = typer.Typer(help="A CLI for managing knowledge items.")
-console = Console()
+console = Console(markup=False)
 error_console = Console(stderr=True)
 
 
@@ -76,10 +76,10 @@ def search_items(
         console.print(f"No knowledge items found matching '{query}'.")
         return
     
-    table = _create_list_table([item.knowledge_item for item in filtered_items])
-    table.add_column("Score", justify="right")
-    table.columns[-1]._cells.extend([f"{item.score:.2f}" for item in filtered_items])
-        
+    table = _create_list_table(
+        [item.knowledge_item for item in filtered_items],
+        scores=[item.score for item in filtered_items],
+    )
     console.print(table)
 
 @app.command("list", help="List all knowledge items.")
@@ -92,7 +92,7 @@ def list_items(
     items = manager.list_items()
 
     if not items:
-        typer.echo("No knowledge items found.")
+        console.print("No knowledge items found.")
         return
 
     if limit is None:
@@ -120,15 +120,20 @@ def _knowledge_manager() -> KnowledgeManager:
     """Create and return a KnowledgeManager instance."""
     return KnowledgeManager(SqliteRepository(get_database_path()))
 
-def _create_list_table(knowledge_items: list[KnowledgeItem]) -> Table:
-    """Create the knowledge_items table"""
+def _create_list_table(knowledge_items: list[KnowledgeItem], scores: list[float] | None = None) -> Table:
+    """Create the knowledge items table, with a Score column when scores are given."""
     table = Table(title="Knowledge Items")
     table.add_column("ID", justify="right", no_wrap=True)
     table.add_column("Title")
     table.add_column("Created at", justify="right")
+    if scores is not None:
+        table.add_column("Score", justify="right")
 
-    for item in knowledge_items:
-        table.add_row(str(item.id), item.title, str(item.created_at.strftime('%Y-%m-%d %H:%M:%S')))
+    for index, item in enumerate(knowledge_items):
+        row = [str(item.id), item.title, item.created_at.strftime('%Y-%m-%d %H:%M:%S')]
+        if scores is not None:
+            row.append(f"{scores[index]:.2f}")
+        table.add_row(*row)
 
     return table
 
