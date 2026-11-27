@@ -1,6 +1,6 @@
 from knowledge.errors import InvalidInputError, ItemNotFoundError
 from knowledge.improved_search import search_knowledge_items
-from knowledge.models import KnowledgeItem
+from knowledge.models import KnowledgeItem, ScoredKnowledgeItem
 from knowledge.repository import SqliteRepository
 
 TITLE_MAX_LENGTH = 250
@@ -35,7 +35,7 @@ class KnowledgeManager:
         """List all knowledge items."""
         return self.repository.list_all()
 
-    def search_items(self, query: str, limit: int = 10) -> list[KnowledgeItem]:
+    def search_items(self, query: str, limit: int = 10) -> list[ScoredKnowledgeItem]:
         """Search for knowledge items based on a query."""
         query = self._require_text("Query", query)
         items = self.repository.list_all()
