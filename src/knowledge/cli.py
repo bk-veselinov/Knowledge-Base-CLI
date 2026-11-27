@@ -53,7 +53,7 @@ def get_item(
     """Get a knowledge item by ID."""
     manager = _knowledge_manager()
     item = manager.get_item(item_id)
-    console.print(f"Title: {item.title}\nCreated at: {item.created_at.strftime('%Y-%m-%d %H:%M:%S')}\n\nContent: {item.content}")
+    console.print(f"Title: {item.title}\nCreated at: {item.created_at.strftime('%Y-%m-%d %H:%M:%S')}\n\nContent:\n{item.content}")
 
 
 @app.command("search", help="Search for knowledge items.")
@@ -70,7 +70,10 @@ def search_items(
         console.print(f"No knowledge items found matching '{query}'.")
         return
     
-    table = _create_list_table(filtered_items)
+    table = _create_list_table([item.knowledge_item for item in filtered_items])
+    table.add_column("Score", justify="right")
+    table.columns[-1]._cells.extend([f"{item.score:.2f}" for item in filtered_items])
+        
     console.print(table)
 
 @app.command("list", help="List all knowledge items.")
@@ -115,7 +118,7 @@ def _create_list_table(knowledge_items: list[KnowledgeItem]) -> Table:
     table.add_column("Created at", justify="right")
 
     for item in knowledge_items:
-        table.add_row(str(item.id), item.title, str(item.created_at))
+        table.add_row(str(item.id), item.title, str(item.created_at.strftime('%Y-%m-%d %H:%M:%S')))
 
     return table
 
